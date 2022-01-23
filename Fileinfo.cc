@@ -318,9 +318,9 @@ Fileinfo::static_makehardlink(Fileinfo& A, const Fileinfo& B)
 }
 
 void
-Fileinfo::addhardlink(Fileinfo* A)
+Fileinfo::addhardlink(Fileinfo& A)
 {
-  if (this != A) {
+  if (this != &A) {
     hardlinkgrouplist.push_back(A);
   } else {
     std::cerr << "Tried to add " << m_filename << " as hardlink to itself"

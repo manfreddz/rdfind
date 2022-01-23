@@ -154,9 +154,9 @@ public:
   // returns true if file is a directory . call readfileinfo first!
   bool isDirectory() const { return m_info.is_directory; }
 
-  void addhardlink(Fileinfo* A);
+  void addhardlink(Fileinfo& A);
 
-  std::list<Fileinfo*>& gethardlinkgroup() { return hardlinkgrouplist; }
+  std::list<Fileinfo>& gethardlinkgroup() { return hardlinkgrouplist; }
 private:
   // to store info about the file
   struct Fileinfostat
@@ -208,7 +208,7 @@ private:
   std::array<char, SomeByteSize> m_somebytes;
 
   /// A list containing Fileinfo-objects that are in the same hardlink group
-  std::list<Fileinfo*> hardlinkgrouplist;
+  std::list<Fileinfo> hardlinkgrouplist;
 };
 
 #endif
