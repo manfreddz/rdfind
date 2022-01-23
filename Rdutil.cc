@@ -50,6 +50,13 @@ Rdutil::printtofile(const std::string& filename) const
            << it->depth() << " " << it->size() << " " << it->device() << " "
            << it->inode() << " " << it->get_cmdline_index() << " " << it->name()
            << '\n';
+    std::list<Fileinfo*>::iterator it2;
+    for (it2 = it->gethardlinkgroup().begin(); it2 != it->gethardlinkgroup().end(); ++it2) {
+      output << Fileinfo::getduptypestring(*it) << " " << (*it2)->getidentity() << " "
+            << (*it2)->depth() << " " << (*it2)->size() << " " << (*it2)->device() << " "
+            << (*it2)->inode() << " " << (*it2)->get_cmdline_index() << " " << (*it2)->name()
+            << '\n';
+    }
   }
   output << "# end of file\n";
   f1.close();
@@ -91,6 +98,14 @@ applyactiononfile(std::vector<Fileinfo>& m_list, Function f)
           RDDEBUG(__FILE__ ": Failed to apply function f on it.\n");
         } else {
           ++ntimesapplied;
+        }
+
+        for (auto it2 = it->gethardlinkgroup().begin(); it2 != it->gethardlinkgroup().end(); ++it2) {
+          if (f(**it2, *original)) {
+            RDDEBUG(__FILE__ ": Failed to apply function f on it.\n");
+          } else {
+            ++ntimesapplied;
+          }
         }
       } break;
 
@@ -313,9 +328,9 @@ Rdutil::removeIdenticalInodes()
       // let the highest-ranking element not be deleted. do this in order, to be
       // cache friendly.
       auto best = std::min_element(first, last, cmpRank);
-      std::for_each(first, best, [](Fileinfo& f) { f.setdeleteflag(true); });
+      std::for_each(first, best, [&best](Fileinfo& f) { f.setdeleteflag(true); best->addhardlink(&f); });
       best->setdeleteflag(false);
-      std::for_each(best + 1, last, [](Fileinfo& f) { f.setdeleteflag(true); });
+      std::for_each(best + 1, last, [&best](Fileinfo& f) { f.setdeleteflag(true); best->addhardlink(&f); });
     });
   return cleanup();
 }

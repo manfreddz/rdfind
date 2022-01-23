@@ -9,6 +9,7 @@
 
 #include <array>
 #include <string>
+#include <list>
 
 // os specific headers
 #include <sys/types.h> //for off_t and others.
@@ -153,6 +154,9 @@ public:
   // returns true if file is a directory . call readfileinfo first!
   bool isDirectory() const { return m_info.is_directory; }
 
+  void addhardlink(Fileinfo* A);
+
+  std::list<Fileinfo*>& gethardlinkgroup() { return hardlinkgrouplist; }
 private:
   // to store info about the file
   struct Fileinfostat
@@ -202,6 +206,9 @@ private:
   };
   /// a buffer that will be filled with some bytes of the file or a hash
   std::array<char, SomeByteSize> m_somebytes;
+
+  /// A list containing Fileinfo-objects that are in the same hardlink group
+  std::list<Fileinfo*> hardlinkgrouplist;
 };
 
 #endif
