@@ -52,6 +52,7 @@ Rdutil::printtofile(const std::string& filename) const
            << '\n';
     std::list<Fileinfo>::iterator it2;
     for (it2 = it->gethardlinkgroup().begin(); it2 != it->gethardlinkgroup().end(); ++it2) {
+      // All hardlinks in group get the same dup type. Should they have the same identity as well..?
       output << Fileinfo::getduptypestring(*it) << " " << it2->getidentity() << " "
             << it2->depth() << " " << it2->size() << " " << it2->device() << " "
             << it2->inode() << " " << it2->get_cmdline_index() << " " << it2->name()
@@ -315,7 +316,7 @@ Rdutil::sort_on_depth_and_name(std::size_t index_of_first)
 }
 
 std::size_t
-Rdutil::removeIdenticalInodes()
+Rdutil::removeIdenticalInodes(bool grouphardlinks)
 {
   // sort list on device and inode.
   auto cmp = cmpDeviceInode;
@@ -324,13 +325,14 @@ Rdutil::removeIdenticalInodes()
   // loop over ranges of adjacent elements
   using Iterator = decltype(m_list.begin());
   apply_on_range(
-    m_list.begin(), m_list.end(), cmp, [](Iterator first, Iterator last) {
+    m_list.begin(), m_list.end(), cmp, [&grouphardlinks](Iterator first, Iterator last) {
       // let the highest-ranking element not be deleted. do this in order, to be
       // cache friendly.
       auto best = std::min_element(first, last, cmpRank);
-      std::for_each(first, best, [&best](Fileinfo& f) { f.setdeleteflag(true); best->addhardlink(f); });
+      auto f = [&best, &grouphardlinks](Fileinfo& f) { f.setdeleteflag(true); if (grouphardlinks) best->addhardlink(f); };
+      std::for_each(first, best, f);
       best->setdeleteflag(false);
-      std::for_each(best + 1, last, [&best](Fileinfo& f) { f.setdeleteflag(true); best->addhardlink(f); });
+      std::for_each(best + 1, last, f);
     });
   return cleanup();
 }

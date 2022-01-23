@@ -340,7 +340,7 @@ main(int narg, const char* argv[])
 
   if (o.remove_identical_inode) {
     // remove files with identical devices and inodes from the list
-    std::cout << dryruntext << "Removed " << gswd.removeIdenticalInodes()
+    std::cout << dryruntext << "Removed " << gswd.removeIdenticalInodes(o.grouphardlinks)
               << " files due to nonunique device and inode." << std::endl;
   }
 
