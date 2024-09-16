@@ -68,6 +68,7 @@ usage()
        "symbolic links\n"
     << " -makehardlinks     true |(false) replace duplicate files with "
        "hard links\n"
+    << " -grouphardlinks    true |(false) groups of hardlinks\n"
     << " -makeresultsfile  (true)| false  makes a results file\n"
     << " -outputname  name  sets the results file name to \"name\" "
        "(default results.txt)\n"
@@ -93,6 +94,7 @@ struct Options
   // operation mode and default values
   bool makesymlinks = false;   // turn duplicates into symbolic links
   bool makehardlinks = false;  // turn duplicates into hard links
+  bool grouphardlinks = false;
   bool makeresultsfile = true; // write a results file
   Fileinfo::filesizetype minimumfilesize =
     1; // minimum file size to be noticed (0 - include empty files)
@@ -132,6 +134,8 @@ parseOptions(Parser& parser)
       o.makesymlinks = parser.get_parsed_bool();
     } else if (parser.try_parse_bool("-makehardlinks")) {
       o.makehardlinks = parser.get_parsed_bool();
+    } else if (parser.try_parse_bool("-grouphardlinks")) {
+      o.grouphardlinks = parser.get_parsed_bool();
     } else if (parser.try_parse_bool("-makeresultsfile")) {
       o.makeresultsfile = parser.get_parsed_bool();
     } else if (parser.try_parse_string("-outputname")) {
@@ -336,7 +340,7 @@ main(int narg, const char* argv[])
 
   if (o.remove_identical_inode) {
     // remove files with identical devices and inodes from the list
-    std::cout << dryruntext << "Removed " << gswd.removeIdenticalInodes()
+    std::cout << dryruntext << "Removed " << gswd.removeIdenticalInodes(o.grouphardlinks)
               << " files due to nonunique device and inode." << std::endl;
   }
 

@@ -47,7 +47,7 @@ public:
    * rank.
    * @return number of elements removed
    */
-  std::size_t removeIdenticalInodes();
+  std::size_t removeIdenticalInodes(bool grouphardlinks);
 
   /**
    * remove files with unique size from the list.

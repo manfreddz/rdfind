@@ -316,3 +316,14 @@ Fileinfo::static_makehardlink(Fileinfo& A, const Fileinfo& B)
 {
   return A.makehardlink(B);
 }
+
+void
+Fileinfo::addhardlink(Fileinfo& A)
+{
+  if (this != &A) {
+    hardlinkgrouplist.push_back(A);
+  } else {
+    std::cerr << "Tried to add " << m_filename << " as hardlink to itself"
+          << '\n';
+  }
+}
